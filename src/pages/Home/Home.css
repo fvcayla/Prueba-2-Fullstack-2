@@ -1,0 +1,9 @@
+.home-page .hero {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+}
+
+.featured-products {
+  background-color: #f8f9fa;
+}

@@ -1,0 +1,12 @@
+.cart-icon {
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.navbar-brand img {
+  height: 40px;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}

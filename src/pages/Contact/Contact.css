@@ -1,0 +1,8 @@
+.contact-page {
+  min-height: 60vh;
+}
+
+.contact-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
