@@ -3,10 +3,43 @@
   padding: 5px 10px;
 }
 
+.cart-dropdown {
+  position: relative;
+}
+
+.cart-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  z-index: 1050;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cart-dropdown-menu .card {
+  border: 1px solid #dee2e6;
+}
+
 .navbar-brand img {
   height: 40px;
 }
 
 .nav-link.active {
   font-weight: bold;
+}
+
+/* Asegurar que el dropdown esté por encima de otros elementos */
+.cart-dropdown-menu .card {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
