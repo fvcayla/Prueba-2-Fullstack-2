@@ -1,0 +1,10 @@
+.admin-order-detail {
+  min-height: calc(100vh - 200px);
+}
+
+@media print {
+  .admin-order-detail .card {
+    border: 1px solid #000;
+  }
+}
+

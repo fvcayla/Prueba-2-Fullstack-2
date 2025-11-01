@@ -28,10 +28,22 @@ let blogPosts = [
 ];
 
 let cart = [];
+let orders = [];
+let categories = [
+    { id: 1, name: "Computadoras", description: "Laptops y computadoras de escritorio" },
+    { id: 2, name: "Audio", description: "Auriculares y sistemas de audio" },
+    { id: 3, name: "Móviles", description: "Smartphones y accesorios" },
+    { id: 4, name: "Wearables", description: "Smartwatches y dispositivos portátiles" },
+    { id: 5, name: "Monitores", description: "Monitores y pantallas" },
+    { id: 6, name: "Periféricos", description: "Teclados, mouse y accesorios" },
+    { id: 7, name: "Video", description: "Cámaras y equipos de video" }
+];
 let nextId = {
     products: Math.max(...products.map(p => p.id), 0) + 1,
     users: Math.max(...users.map(u => u.id), 0) + 1,
-    blogPosts: Math.max(...blogPosts.map(b => b.id), 0) + 1
+    blogPosts: Math.max(...blogPosts.map(b => b.id), 0) + 1,
+    orders: 1,
+    categories: Math.max(...categories.map(c => c.id), 0) + 1
 };
 
 // ============ PRODUCTOS CRUD ============
@@ -95,6 +107,18 @@ export const productService = {
     // Obtener productos por categoría
     getByCategory: (category) => {
         return products.filter(p => p.category === category);
+    },
+
+    // Obtener productos críticos (stock bajo)
+    getCriticalProducts: (threshold = 15) => {
+        return products.filter(p => p.stock <= threshold);
+    },
+
+    // Obtener productos en oferta (simulado: productos con descuento del 20% o más)
+    getOnSale: () => {
+        // Para simular ofertas, podríamos marcar algunos productos
+        // Por ahora retornamos productos con precio menor a cierto umbral
+        return products.filter(p => p.price < 300);
     }
 };
 
@@ -284,5 +308,145 @@ export const cartService = {
     // Obtener cantidad de items
     getCount: () => {
         return cart.reduce((count, item) => count + item.quantity, 0);
+    }
+};
+
+// ============ CATEGORÍAS CRUD ============
+
+export const categoryService = {
+    // READ - Obtener todas las categorías
+    getAll: () => {
+        return [...categories];
+    },
+
+    // READ - Obtener una categoría por ID
+    getById: (id) => {
+        return categories.find(c => c.id === parseInt(id));
+    },
+
+    // READ - Obtener una categoría por nombre
+    getByName: (name) => {
+        return categories.find(c => c.name === name);
+    },
+
+    // CREATE - Crear una nueva categoría
+    create: (categoryData) => {
+        const newCategory = {
+            id: nextId.categories++,
+            ...categoryData,
+            createdAt: new Date().toISOString()
+        };
+        categories.push(newCategory);
+        return newCategory;
+    },
+
+    // UPDATE - Actualizar una categoría existente
+    update: (id, categoryData) => {
+        const index = categories.findIndex(c => c.id === parseInt(id));
+        if (index === -1) {
+            throw new Error('Categoría no encontrada');
+        }
+        categories[index] = {
+            ...categories[index],
+            ...categoryData,
+            updatedAt: new Date().toISOString()
+        };
+        return categories[index];
+    },
+
+    // DELETE - Eliminar una categoría
+    delete: (id) => {
+        const index = categories.findIndex(c => c.id === parseInt(id));
+        if (index === -1) {
+            throw new Error('Categoría no encontrada');
+        }
+        const deleted = categories.splice(index, 1)[0];
+        return deleted;
+    }
+};
+
+// ============ ÓRDENES CRUD ============
+
+export const orderService = {
+    // READ - Obtener todas las órdenes
+    getAll: () => {
+        return [...orders];
+    },
+
+    // READ - Obtener órdenes de un usuario
+    getByUserId: (userId) => {
+        return orders.filter(o => o.userId === parseInt(userId));
+    },
+
+    // READ - Obtener una orden por ID
+    getById: (id) => {
+        return orders.find(o => o.id === parseInt(id));
+    },
+
+    // CREATE - Crear una nueva orden
+    create: (orderData) => {
+        const newOrder = {
+            id: nextId.orders++,
+            status: 'pending',
+            ...orderData,
+            createdAt: new Date().toISOString()
+        };
+        orders.push(newOrder);
+        return newOrder;
+    },
+
+    // UPDATE - Actualizar una orden existente
+    update: (id, orderData) => {
+        const index = orders.findIndex(o => o.id === parseInt(id));
+        if (index === -1) {
+            throw new Error('Orden no encontrada');
+        }
+        orders[index] = {
+            ...orders[index],
+            ...orderData,
+            updatedAt: new Date().toISOString()
+        };
+        return orders[index];
+    },
+
+    // DELETE - Eliminar una orden
+    delete: (id) => {
+        const index = orders.findIndex(o => o.id === parseInt(id));
+        if (index === -1) {
+            throw new Error('Orden no encontrada');
+        }
+        const deleted = orders.splice(index, 1)[0];
+        return deleted;
+    },
+
+    // Procesar pago y crear orden
+    processPayment: (userId, cartItems, paymentData) => {
+        const total = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+        
+        // Simular procesamiento de pago
+        const paymentSuccess = Math.random() > 0.1; // 90% de éxito
+
+        if (paymentSuccess) {
+            const newOrder = {
+                id: nextId.orders++,
+                userId: parseInt(userId),
+                items: cartItems.map(item => ({
+                    productId: item.productId,
+                    productName: item.product.name,
+                    quantity: item.quantity,
+                    price: item.product.price,
+                    subtotal: item.product.price * item.quantity
+                })),
+                total: total,
+                status: 'completed',
+                paymentMethod: paymentData.method || 'credit_card',
+                shippingAddress: paymentData.shippingAddress || {},
+                createdAt: new Date().toISOString()
+            };
+            orders.push(newOrder);
+            return { success: true, order: newOrder };
+        } else {
+            return { success: false, error: 'Error en el procesamiento del pago' };
+        }
     }
 };
